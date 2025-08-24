@@ -12,11 +12,9 @@ const useFilters = (candidates = []) => {
     sortBy: 'score',
   });
 
-  // Filter and sort candidates
   const filteredCandidates = useMemo(() => {
     let filtered = [...candidates];
 
-    // Apply search filter
     if (filters.search) {
       const searchTerm = filters.search.toLowerCase();
       filtered = filtered.filter(
@@ -34,7 +32,6 @@ const useFilters = (candidates = []) => {
       );
     }
 
-    // Apply location filter
     if (filters.location) {
       filtered = filtered.filter((candidate) =>
         candidate.location
@@ -43,7 +40,6 @@ const useFilters = (candidates = []) => {
       );
     }
 
-    // Apply salary filters
     if (filters.salaryMin || filters.salaryMax) {
       filtered = filtered.filter((candidate) => {
         const salary = parseInt(
@@ -62,21 +58,18 @@ const useFilters = (candidates = []) => {
       });
     }
 
-    // Apply education filter
     if (filters.education) {
       filtered = filtered.filter(
         (candidate) => candidate.education?.highest_level === filters.education
       );
     }
 
-    // Apply availability filter
     if (filters.availability) {
       filtered = filtered.filter((candidate) =>
         candidate.work_availability?.includes(filters.availability)
       );
     }
 
-    // Apply skills filter
     if (filters.skills) {
       const skillsTerm = filters.skills.toLowerCase();
       filtered = filtered.filter((candidate) =>
@@ -86,7 +79,6 @@ const useFilters = (candidates = []) => {
       );
     }
 
-    // Apply sorting
     filtered.sort((a, b) => {
       switch (filters.sortBy) {
         case 'score':
@@ -134,7 +126,6 @@ const useFilters = (candidates = []) => {
     return filtered;
   }, [candidates, filters]);
 
-  // Clear all filters except sortBy
   const clearFilters = () => {
     setFilters({
       search: '',
@@ -148,7 +139,6 @@ const useFilters = (candidates = []) => {
     });
   };
 
-  // Update individual filter
   const updateFilter = (key, value) => {
     setFilters((prev) => ({
       ...prev,
@@ -156,10 +146,9 @@ const useFilters = (candidates = []) => {
     }));
   };
 
-  // Check if any filters are active
   const hasActiveFilters = useMemo(() => {
     return Object.entries(filters).some(([key, value]) => {
-      if (key === 'sortBy') return false; // sortBy doesn't count as active filter
+      if (key === 'sortBy') return false;
       return value && value !== '';
     });
   }, [filters]);

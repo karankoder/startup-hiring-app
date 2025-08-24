@@ -12,7 +12,6 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
 
-  // Custom hooks
   const { isOpen: sidebarOpen, toggle: toggleSidebar, close: closeSidebar } = useSidebar();
   const {
     selectedCandidates,
@@ -22,18 +21,16 @@ const App = () => {
     isMaxReached
   } = useTeamSelection(5);
 
-  // Generate a deterministic ID for each candidate based on their name and email
   function generateDeterministicId(candidate) {
     const data = candidate.phone + candidate.email;
-    return CryptoJS.MD5(data).toString(); // MD5 hash in hex
+    return CryptoJS.MD5(data).toString();
   }
 
-  // Load candidates data
   useEffect(() => {
     const loadCandidates = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/data/form_submisson.json'); // Ensure the path is correct
+        const response = await fetch('/data/form_submisson.json');
         if (!response.ok) {
           throw new Error('Failed to fetch candidates data');
         }
@@ -53,7 +50,6 @@ const App = () => {
     loadCandidates();
   }, []);
 
-  // Initialize filters after candidates are loaded
   const {
     filters,
     setFilters,
@@ -61,7 +57,6 @@ const App = () => {
     filteredCandidates
   } = useFilters(candidates);
 
-  // Event handlers
   const handleSelectCandidate = (candidate) => {
     toggleCandidate(candidate);
   };
@@ -96,7 +91,6 @@ const App = () => {
         onRemoveCandidate={handleRemoveFromTeam}
       >
         <div className="space-y-6">
-          {/* Search results header */}
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">
@@ -122,7 +116,6 @@ const App = () => {
             )}
           </div>
 
-          {/* Candidate grid */}
           <CandidateGrid
             candidates={filteredCandidates}
             selectedCandidates={selectedCandidates}
@@ -134,7 +127,6 @@ const App = () => {
         </div>
       </Layout>
 
-      {/* Candidate detail modal */}
       <CandidateModal
         candidate={selectedCandidate}
         isOpen={!!selectedCandidate}
