@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 
-const useFilters = (candidates = []) => {
+const useFilters = (candidates = [], requiredSkills = [], budget = 0) => {
   const [filters, setFilters] = useState({
     search: '',
     location: '',
@@ -79,13 +79,47 @@ const useFilters = (candidates = []) => {
       );
     }
 
-    filtered.sort((a, b) => {
+    const calculateCandidateScore = (candidate, requiredSkills, budget) => {
+      let score = 0;
+
+      const matchedSkills = candidate.skills.filter((skill) =>
+        requiredSkills.includes(skill)
+      ).length;
+      score += (matchedSkills / requiredSkills.length) * 40;
+
+      const experienceCount = candidate.work_experiences.length;
+      score += Math.min(experienceCount, 10) * 3;
+
+      const highestLevel = candidate.education.highest_level || '';
+      if (highestLevel.includes('PhD')) score += 20;
+      else if (highestLevel.includes('Master')) score += 15;
+      else if (highestLevel.includes('Bachelor')) score += 10;
+
+      const expectedSalary = parseInt(
+        candidate.annual_salary_expectation?.['full-time']?.replace(
+          /[$,]/g,
+          ''
+        ) || '0'
+      );
+      if (expectedSalary <= budget) score += 10;
+      else {
+        const over = expectedSalary - budget;
+        score += Math.max(0, 10 - (over / budget) * 10);
+      }
+
+      return Math.round(score);
+    };
+
+    const candidatesWithScore = filtered.map((candidate) => {
+      const score = calculateCandidateScore(candidate, requiredSkills, budget);
+      console.log(`Candidate: ${candidate.name}, Score: ${score}`);
+      return { ...candidate, score };
+    });
+
+    candidatesWithScore.sort((a, b) => {
       switch (filters.sortBy) {
         case 'score':
           return (b.score || 0) - (a.score || 0);
-
-        case 'diversity':
-          return (b.diversity || 0) - (a.diversity || 0);
 
         case 'salary-high':
           const salaryA = parseInt(
@@ -110,7 +144,9 @@ const useFilters = (candidates = []) => {
           return salaryA2 - salaryB2;
 
         case 'experience':
-          return (b.experienceYears || 0) - (a.experienceYears || 0);
+          const expA = a.work_experiences?.length || 0;
+          const expB = b.work_experiences?.length || 0;
+          return expB - expA;
 
         case 'name':
           return (a.name || '').localeCompare(b.name || '');
@@ -123,7 +159,7 @@ const useFilters = (candidates = []) => {
       }
     });
 
-    return filtered;
+    return candidatesWithScore;
   }, [candidates, filters]);
 
   const clearFilters = () => {

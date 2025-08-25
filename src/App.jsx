@@ -6,11 +6,14 @@ import CandidateModal from './components/candidate/CandidateModal';
 import useSidebar from './hooks/useSidebar';
 import useFilters from './hooks/useFilters';
 import useTeamSelection from './hooks/useTeamSelection';
+import Button from './components/ui/Button';
 
 const App = () => {
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const requiredSkills = ['JavaScript', 'React', 'Node.js'];
+  const budget = 100000;
 
   const { isOpen: sidebarOpen, toggle: toggleSidebar, close: closeSidebar } = useSidebar();
   const {
@@ -55,7 +58,7 @@ const App = () => {
     setFilters,
     clearFilters,
     filteredCandidates
-  } = useFilters(candidates);
+  } = useFilters(candidates, requiredSkills, budget);
 
   const handleSelectCandidate = (candidate) => {
     toggleCandidate(candidate);
